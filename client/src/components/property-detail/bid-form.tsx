@@ -44,6 +44,7 @@ export default function BidForm({ property }: BidFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [suggestedAmount, setSuggestedAmount] = useState<string>("");
+  const [alertEnabled, setAlertEnabled] = useState(false);
 
   // Calculate auction progress
   const startDate = new Date(property.createdAt);
@@ -90,7 +91,7 @@ export default function BidForm({ property }: BidFormProps) {
   });
 
   const bidMutation = useMutation({
-    mutationFn: async (amount: number) => {
+    mutationFn: async (amount: string) => {
       const res = await apiRequest(
         "POST", 
         `/api/properties/${property.id}/bids`, 
@@ -128,8 +129,8 @@ export default function BidForm({ property }: BidFormProps) {
       return;
     }
     
-    const amount = Number(values.amount);
-    bidMutation.mutate(amount);
+    // Pass the amount as a string directly
+    bidMutation.mutate(values.amount);
   };
 
   const handleSuggestedBidClick = (amount: number) => {
@@ -247,9 +248,19 @@ export default function BidForm({ property }: BidFormProps) {
         <div className="text-center">
           <Button 
             variant="link" 
-            className="text-primary font-medium flex items-center justify-center w-full"
+            className={`font-medium flex items-center justify-center w-full ${alertEnabled ? 'text-green-600' : 'text-primary'}`}
+            onClick={() => {
+              setAlertEnabled(!alertEnabled);
+              toast({
+                title: alertEnabled ? "Alert Disabled" : "Alert Enabled",
+                description: alertEnabled 
+                  ? "You will no longer receive notifications for price changes." 
+                  : "You will now receive notifications when the price changes.",
+              });
+            }}
           >
-            <BellRing className="mr-2 h-4 w-4" /> Set Alert for Price Changes
+            <BellRing className="mr-2 h-4 w-4" /> 
+            {alertEnabled ? "Price Alert Enabled" : "Set Alert for Price Changes"}
           </Button>
         </div>
       </CardContent>
