@@ -71,13 +71,21 @@ export function setupAuth(app: Express) {
 
   app.post("/api/register", async (req, res, next) => {
     try {
+      console.log("Register request body:", req.body);
       const { email, firstName, lastName, password } = req.body;
+      
+      if (!email || !firstName || !lastName || !password) {
+        console.log("Missing required fields:", { email, firstName, lastName, password: password ? "[REDACTED]" : undefined });
+        return res.status(400).json({ message: "All fields are required (email, firstName, lastName, password)" });
+      }
       
       const existingUser = await storage.getUserByEmail(email);
       if (existingUser) {
+        console.log("User with email already exists:", email);
         return res.status(400).json({ message: "Email already exists" });
       }
 
+      console.log("Creating new user with email:", email);
       const user = await storage.createUser({
         email,
         firstName,
@@ -86,7 +94,11 @@ export function setupAuth(app: Express) {
       });
 
       req.login(user, (err) => {
-        if (err) return next(err);
+        if (err) {
+          console.error("Login after registration error:", err);
+          return next(err);
+        }
+        console.log("User registered and logged in successfully:", user.id);
         return res.status(201).json(user);
       });
     } catch (error) {
@@ -96,13 +108,24 @@ export function setupAuth(app: Express) {
   });
 
   app.post("/api/login", (req, res, next) => {
-    passport.authenticate("local", (err, user, info) => {
-      if (err) return next(err);
+    console.log("Login request body:", { ...req.body, password: req.body.password ? "[REDACTED]" : undefined });
+    
+    passport.authenticate("local", (err: any, user: SelectUser | false, info: any) => {
+      if (err) {
+        console.error("Login authentication error:", err);
+        return next(err);
+      }
       if (!user) {
+        console.log("Login failed: Invalid credentials");
         return res.status(401).json({ message: "Invalid email or password" });
       }
+      
       req.login(user, (err) => {
-        if (err) return next(err);
+        if (err) {
+          console.error("Login session error:", err);
+          return next(err);
+        }
+        console.log("User logged in successfully:", user.id);
         return res.status(200).json(user);
       });
     })(req, res, next);
