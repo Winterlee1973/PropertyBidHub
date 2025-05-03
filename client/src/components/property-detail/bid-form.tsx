@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { Property } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2, BellRing } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -44,7 +44,6 @@ export default function BidForm({ property }: BidFormProps) {
   const { user } = useAuth();
   const { toast } = useToast();
   const [suggestedAmount, setSuggestedAmount] = useState<string>("");
-  const [alertEnabled, setAlertEnabled] = useState(false);
 
   // Calculate auction progress
   const startDate = new Date(property.createdAt);
@@ -245,24 +244,7 @@ export default function BidForm({ property }: BidFormProps) {
           </div>
         )}
         
-        <div className="text-center">
-          <Button 
-            variant="link" 
-            className={`font-medium flex items-center justify-center w-full ${alertEnabled ? 'text-green-600' : 'text-primary'}`}
-            onClick={() => {
-              setAlertEnabled(!alertEnabled);
-              toast({
-                title: alertEnabled ? "Alert Disabled" : "Alert Enabled",
-                description: alertEnabled 
-                  ? "You will no longer receive notifications for price changes." 
-                  : "You will now receive notifications when the price changes.",
-              });
-            }}
-          >
-            <BellRing className="mr-2 h-4 w-4" /> 
-            {alertEnabled ? "Price Alert Enabled" : "Set Alert for Price Changes"}
-          </Button>
-        </div>
+
       </CardContent>
     </Card>
   );

@@ -102,10 +102,11 @@ export const insertPropertySchema = createInsertSchema(properties).omit({
 });
 
 export const insertBidSchema = createInsertSchema(bids, {
-  amount: (schema) => schema.refine(val => 
-    typeof val === 'number' && val > 0, 
-    { message: "Bid amount must be greater than 0" }
-  ),
+  amount: (schema) => schema.refine(val => {
+    // Handle both string and number inputs
+    const numVal = typeof val === 'string' ? parseFloat(val) : val;
+    return !isNaN(numVal) && numVal > 0;
+  }, { message: "Bid amount must be greater than 0" })
 }).omit({ id: true, createdAt: true });
 
 export const insertVisitSchema = createInsertSchema(visits).omit({ 

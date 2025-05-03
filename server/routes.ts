@@ -86,13 +86,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
       
       // Check if the bid is higher than the current top bid and asking price
       const askingPrice = Number(property.askingPrice);
-      if (validatedData.amount <= askingPrice) {
+      const bidAmount = Number(validatedData.amount);
+
+      if (bidAmount <= askingPrice) {
         return res.status(400).json({ 
           message: "Bid must be higher than the asking price" 
         });
       }
 
-      if (topBid && validatedData.amount <= Number(topBid.amount)) {
+      if (topBid && bidAmount <= Number(topBid.amount)) {
         return res.status(400).json({ 
           message: "Bid must be higher than the current top bid" 
         });
