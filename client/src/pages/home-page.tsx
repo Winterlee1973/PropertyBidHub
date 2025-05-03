@@ -1,10 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import PropertyCard from "@/components/property-card";
-import { Loader2, Search } from "lucide-react";
+import { Loader2, Search, MapPin } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useLocation } from "wouter";
 import { Property } from "@shared/schema";
 import { 
   Pagination, 
@@ -14,12 +15,29 @@ import {
   PaginationNext,
   PaginationPrevious
 } from "@/components/ui/pagination";
+import { Badge } from "@/components/ui/badge";
 
 export default function HomePage() {
+  const [location] = useLocation();
   const [sortBy, setSortBy] = useState("latest");
   const [searchTerm, setSearchTerm] = useState("");
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
   const propertiesPerPage = 8;
+  
+  // Parse URL search parameters
+  useEffect(() => {
+    const searchParams = new URLSearchParams(location.split("?")[1] || "");
+    const locationParam = searchParams.get("location");
+    const searchParam = searchParams.get("search");
+    
+    if (locationParam) {
+      setSelectedLocation(locationParam);
+      setSearchTerm(locationParam);
+    } else if (searchParam) {
+      setSearchTerm(searchParam);
+    }
+  }, [location]);
 
   const { data: properties, isLoading, error } = useQuery<Property[]>({
     queryKey: ["/api/properties"],
@@ -77,6 +95,27 @@ export default function HomePage() {
       {/* Page title and filters */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-slate-800 mb-4">Available Properties</h1>
+        
+        {selectedLocation && (
+          <div className="mb-4 flex items-center">
+            <Badge variant="outline" className="flex items-center gap-1 px-3 py-1 border-primary text-primary">
+              <MapPin className="h-3.5 w-3.5" />
+              <span>{selectedLocation}</span>
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="h-5 w-5 p-0 ml-1" 
+                onClick={() => {
+                  setSelectedLocation(null);
+                  setSearchTerm("");
+                }}
+              >
+                &times;
+              </Button>
+            </Badge>
+          </div>
+        )}
+        
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
           <div className="flex items-center space-x-2">
             <span className="text-sm text-slate-500">Sort by:</span>

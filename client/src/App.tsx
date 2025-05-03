@@ -4,6 +4,7 @@ import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import NotFound from "@/pages/not-found";
 import HomePage from "@/pages/home-page";
+import LandingPage from "@/pages/landing-page";
 import AuthPage from "@/pages/auth-page";
 import PropertyDetail from "@/pages/property-detail";
 import { ProtectedRoute } from "./lib/protected-route";
@@ -14,7 +15,8 @@ import Footer from "@/components/footer";
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={HomePage} />
+      <Route path="/" component={LandingPage} />
+      <Route path="/properties" component={HomePage} />
       <Route path="/auth" component={AuthPage} />
       <ProtectedRoute path="/property/:id" component={PropertyDetail} />
       <Route component={NotFound} />
