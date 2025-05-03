@@ -16,12 +16,32 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={LandingPage} />
-      <Route path="/properties" component={HomePage} />
-      <Route path="/auth" component={AuthPage} />
-      <ProtectedRoute path="/property/:id" component={PropertyDetail} />
-      <Route component={NotFound} />
+      <Route path="/properties" component={LayoutWithHeaderFooter(HomePage)} />
+      <Route path="/auth" component={LayoutWithHeaderFooter(AuthPage)} />
+      <Route path="/property/:id" component={LayoutWithHeaderFooter(ProtectedPropertyDetail)} />
+      <Route component={LayoutWithHeaderFooter(NotFound)} />
     </Switch>
   );
+}
+
+// Wrap PropertyDetail with ProtectedRoute
+function ProtectedPropertyDetail() {
+  return <ProtectedRoute path="/property/:id" component={PropertyDetail} />;
+}
+
+// HOC to wrap components with Header and Footer
+function LayoutWithHeaderFooter(Component: React.ComponentType) {
+  return function WrappedComponent(props: any) {
+    return (
+      <>
+        <Header />
+        <main className="flex-grow">
+          <Component {...props} />
+        </main>
+        <Footer />
+      </>
+    );
+  };
 }
 
 function App() {
@@ -29,11 +49,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
         <div className="flex flex-col min-h-screen">
-          <Header />
-          <main className="flex-grow">
-            <Router />
-          </main>
-          <Footer />
+          <Router />
         </div>
         <Toaster />
       </AuthProvider>

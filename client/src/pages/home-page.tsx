@@ -39,7 +39,7 @@ export default function HomePage() {
     }
   }, [location]);
 
-  const { data: properties, isLoading, error } = useQuery<Property[]>({
+  const { data: properties, isLoading, error } = useQuery<(Property & { topBid: number | null })[]>({
     queryKey: ["/api/properties"],
   });
 
