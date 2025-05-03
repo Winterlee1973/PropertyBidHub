@@ -24,16 +24,24 @@ export default function LandingPage() {
   const [, setLocation] = useLocation();
 
   // Filter locations based on search term
-  const filteredLocations = LOCATIONS.filter(location => 
-    location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    location.state.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    location.zip.includes(searchTerm)
-  );
+  const filteredLocations = LOCATIONS.filter(location => {
+    if (searchTerm.length < 3) return false;
+    
+    return location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      location.state.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      location.zip.includes(searchTerm);
+  });
 
-  // Close the popover if there's no search term
+  // Reset location if search term changes
   useEffect(() => {
     if (searchTerm.length < 3) {
       setSelectedLocation(null);
+    }
+    // Always ensure popover is open when we have 3+ characters
+    if (searchTerm.length >= 3) {
+      setOpen(true);
+    } else {
+      setOpen(false);
     }
   }, [searchTerm]);
 
@@ -85,6 +93,20 @@ export default function LandingPage() {
                       <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
                         <Search size={18} />
                       </span>
+                      {searchTerm && (
+                        <Button 
+                          variant="ghost"
+                          size="sm"
+                          className="absolute right-1 top-1/2 h-6 w-6 p-0 transform -translate-y-1/2"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setSearchTerm("");
+                            setSelectedLocation(null);
+                          }}
+                        >
+                          &times;
+                        </Button>
+                      )}
                     </div>
                   </PopoverTrigger>
                   <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
