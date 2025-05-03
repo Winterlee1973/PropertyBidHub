@@ -135,7 +135,12 @@ export default function AuthPage() {
                         <FormItem>
                           <FormLabel>Email</FormLabel>
                           <FormControl>
-                            <Input placeholder="your.email@example.com" {...field} />
+                            <Input 
+                              type="email" 
+                              inputMode="email" 
+                              placeholder="your.email@example.com" 
+                              {...field} 
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
@@ -217,7 +222,12 @@ export default function AuthPage() {
                         <FormItem>
                           <FormLabel>Email</FormLabel>
                           <FormControl>
-                            <Input placeholder="your.email@example.com" {...field} />
+                            <Input 
+                              type="email" 
+                              inputMode="email" 
+                              placeholder="your.email@example.com" 
+                              {...field} 
+                            />
                           </FormControl>
                           <FormMessage />
                         </FormItem>
