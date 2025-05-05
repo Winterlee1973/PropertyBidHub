@@ -2,6 +2,7 @@ import { Property } from "@shared/schema";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
+import { useState } from "react";
 import { 
   Eye, 
   Heart, 
@@ -9,6 +10,10 @@ import {
   Bath, 
   LandPlot,
 } from "lucide-react";
+import { useAuth } from "@/hooks/use-auth";
+import { useMutation } from "@tanstack/react-query";
+import { apiRequest } from "@/lib/queryClient";
+import { useToast } from "@/hooks/use-toast";
 
 interface PropertyCardProps {
   property: Property & { 
@@ -18,10 +23,71 @@ interface PropertyCardProps {
 }
 
 export default function PropertyCard({ property }: PropertyCardProps) {
-  // Calculate days remaining until end date
-  const endDate = new Date(property.endDate);
-  const today = new Date();
-  const daysLeft = Math.max(0, Math.ceil((endDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24)));
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const [isFavorite, setIsFavorite] = useState(property.isFavorite || false);
+  
+  const addToFavoritesMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("POST", `/api/properties/${property.id}/favorite`);
+      return await res.json();
+    },
+    onSuccess: () => {
+      setIsFavorite(true);
+      toast({
+        title: "Success",
+        description: "Property added to favorites",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const removeFromFavoritesMutation = useMutation({
+    mutationFn: async () => {
+      const res = await apiRequest("DELETE", `/api/properties/${property.id}/favorite`);
+      return await res.json();
+    },
+    onSuccess: () => {
+      setIsFavorite(false);
+      toast({
+        title: "Success",
+        description: "Property removed from favorites",
+      });
+    },
+    onError: (error: Error) => {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    },
+  });
+
+  const toggleFavorite = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please log in to save favorites",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (isFavorite) {
+      removeFromFavoritesMutation.mutate();
+    } else {
+      addToFavoritesMutation.mutate();
+    }
+  };
   
   const formatPrice = (price: number | string) => {
     if (typeof price === 'string') {
@@ -66,9 +132,9 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         <div className="p-4">
           <div className="flex justify-between items-start">
             <h3 className="text-lg font-semibold text-slate-800 mb-1">{property.title}</h3>
-            <div className="flex items-center space-x-1 text-yellow-500">
-              <Star className="h-3 w-3 fill-current" />
-              <span className="text-xs font-medium">4.8</span>
+            <div className="flex items-center space-x-1 text-slate-500">
+              <Eye className="h-3 w-3" />
+              <span className="text-xs font-medium">{property.viewCount || 0} views</span>
             </div>
           </div>
           <p className="text-slate-500 text-sm mb-2">{property.address}, {property.city}, {property.state}</p>
@@ -102,8 +168,14 @@ export default function PropertyCard({ property }: PropertyCardProps) {
         </div>
       </Link>
       <div className="bg-slate-50 px-4 py-3 border-t border-slate-100 flex justify-between items-center">
-        <div className="text-xs text-slate-500">
-          <Clock className="h-3 w-3 inline mr-1" /> {daysLeft} {daysLeft === 1 ? 'day' : 'days'} left
+        <div>
+          <button 
+            onClick={toggleFavorite}
+            className={`flex items-center text-xs ${isFavorite ? 'text-red-500' : 'text-slate-400'} hover:text-red-500 transition-colors`}
+          >
+            <Heart className={`h-4 w-4 mr-1 ${isFavorite ? 'fill-current' : ''}`} />
+            {isFavorite ? 'Saved' : 'Save'}
+          </button>
         </div>
         <div>
           <Button 
