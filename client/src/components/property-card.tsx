@@ -3,15 +3,18 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Link } from "wouter";
 import { 
-  Star, 
-  Clock, 
+  Eye, 
+  Heart, 
   BedDouble, 
   Bath, 
   LandPlot,
 } from "lucide-react";
 
 interface PropertyCardProps {
-  property: Property & { topBid: number | null };
+  property: Property & { 
+    topBid: number | null;
+    isFavorite?: boolean;
+  };
 }
 
 export default function PropertyCard({ property }: PropertyCardProps) {
