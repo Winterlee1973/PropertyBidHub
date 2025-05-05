@@ -15,6 +15,8 @@ const LOCATIONS = [
   { id: 3, name: "Huntington Beach", state: "California", zip: "92648" },
   { id: 4, name: "Huntingdon Valley", state: "Pennsylvania", zip: "19006" },
   { id: 5, name: "Huntley", state: "Illinois", zip: "60142" },
+  // Special property ID location
+  { id: 100, name: "587 Duck Pond Road, Locust Valley", state: "New York", zip: "11743" },
 ];
 
 export default function LandingPage() {
@@ -23,8 +25,18 @@ export default function LandingPage() {
   const [selectedLocation, setSelectedLocation] = useState<typeof LOCATIONS[0] | null>(null);
   const [, setLocation] = useLocation();
 
-  // Filter locations based on search term - no minimum character restriction for zip codes
+  // Filter locations based on search term - no minimum character restriction for zip codes or property IDs
   const filteredLocations = LOCATIONS.filter(location => {
+    // Handle Property ID search (exactly "100")
+    if (searchTerm === "100") {
+      return location.id === 100;
+    }
+    
+    // Handle numeric property ID prefix
+    if (/^10+\d*$/.test(searchTerm)) {
+      return false; // Don't show any locations when typing property ID prefix (10...)
+    }
+    
     // Always show all locations when typing zip codes (numbers)
     if (/^\d+$/.test(searchTerm)) {
       return location.zip.includes(searchTerm);
@@ -55,6 +67,21 @@ export default function LandingPage() {
 
   // Handle search submission
   const handleSearch = () => {
+    // Check if it's a property ID search (exact match for 100)
+    if (searchTerm === "100") {
+      // Navigate directly to property detail page
+      setLocation(`/property/100`);
+      return;
+    }
+    
+    // Check if it matches property ID pattern (10...)
+    if (/^10\d{3,}$/.test(searchTerm)) {
+      // Extract property ID from input
+      const propertyId = searchTerm;
+      setLocation(`/property/${propertyId}`);
+      return;
+    }
+    
     if (selectedLocation) {
       // Navigate to properties page with the selected location as a query parameter
       setLocation(`/properties?location=${selectedLocation.name},${selectedLocation.state}`);
@@ -88,7 +115,7 @@ export default function LandingPage() {
                     <div className="flex flex-grow rounded-md relative">
                       <Input
                         type="text"
-                        placeholder="Enter city, town or ZIP code"
+                        placeholder="Enter city, ZIP code or Property ID"
                         className="w-full h-12 pl-10 pr-4 rounded-l-md text-gray-800 border-gray-300 focus:border-primary"
                         value={searchTerm}
                         onChange={(e) => setSearchTerm(e.target.value)}

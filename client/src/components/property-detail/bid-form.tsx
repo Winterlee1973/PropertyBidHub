@@ -157,30 +157,30 @@ export default function BidForm({ property }: BidFormProps) {
 
   return (
     <Card>
-      <CardHeader className="border-b border-slate-100 bg-slate-900 text-white">
+      <CardHeader className="border-b border-slate-200 bg-white">
         <CardTitle className="flex items-center">
-          <DollarSign className="h-5 w-5 mr-2 text-blue-400" />
+          <DollarSign className="h-5 w-5 mr-2 text-blue-600" />
           Trade Dashboard
         </CardTitle>
       </CardHeader>
-      <CardContent className="bg-gradient-to-b from-slate-900 to-slate-800 text-white pt-4">
-        {/* Crypto/trading-like price display */}
-        <div className="mb-4 pb-4 border-b border-slate-700">
+      <CardContent className="bg-white pt-4">
+        {/* Market-like price display */}
+        <div className="mb-4 pb-4 border-b border-slate-200">
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-slate-800 p-3 rounded-md border border-slate-700 shadow-lg">
-              <div className="text-slate-400 text-sm mb-1">Current Bid</div>
+            <div className="bg-slate-50 p-3 rounded-md border border-slate-200 shadow-sm">
+              <div className="text-slate-500 text-sm mb-1">Current Bid</div>
               <div className="flex items-center">
-                <span className={`font-mono font-semibold text-2xl ${property.topBid ? 'text-blue-400' : 'text-slate-500'}`}>
+                <span className={`font-mono font-semibold text-2xl ${property.topBid ? 'text-blue-600' : 'text-slate-400'}`}>
                   {property.topBid ? formatPrice(property.topBid) : "No bids"}
                 </span>
                 {property.topBid && <ChevronUp className="h-4 w-4 ml-1 text-blue-500" />}
               </div>
             </div>
             
-            <div className="bg-slate-800 p-3 rounded-md border border-slate-700 shadow-lg">
-              <div className="text-slate-400 text-sm mb-1">Ask Price</div>
+            <div className="bg-slate-50 p-3 rounded-md border border-slate-200 shadow-sm">
+              <div className="text-slate-500 text-sm mb-1">Ask Price</div>
               <div className="flex items-center">
-                <span className="font-mono text-emerald-400 font-semibold text-2xl">
+                <span className="font-mono text-emerald-600 font-semibold text-2xl">
                   {formatPrice(property.askingPrice)}
                 </span>
                 <ArrowUpIcon className="h-4 w-4 ml-1 text-emerald-500" />
@@ -190,12 +190,12 @@ export default function BidForm({ property }: BidFormProps) {
           
           <div className="mt-4 flex justify-between items-center">
             <div className="text-xs">
-              <span className="inline-block bg-blue-950 text-blue-300 rounded-full px-2 py-1 border border-blue-800">
+              <span className="inline-block bg-blue-50 text-blue-600 rounded-full px-2 py-1 border border-blue-100">
                 Total Bids: {property.bids?.length || 0}
               </span>
             </div>
             <div className="text-xs">
-              <span className="inline-block bg-slate-700 text-slate-300 rounded-full px-2 py-1 border border-slate-600">
+              <span className="inline-block bg-slate-100 text-slate-600 rounded-full px-2 py-1 border border-slate-200">
                 Views: {property.viewCount || 0}
               </span>
             </div>
@@ -205,15 +205,15 @@ export default function BidForm({ property }: BidFormProps) {
         {/* Bid History - Now comes first and is more prominent */}
         {property.bids && property.bids.length > 0 && (
           <div className="mb-6">
-            <h3 className="font-medium text-blue-300 mb-3 flex items-center">
+            <h3 className="font-medium text-blue-600 mb-3 flex items-center">
               <ChevronUp className="h-4 w-4 mr-1" /> Bid History
             </h3>
-            <div className="bg-slate-800 border border-slate-700 rounded-md p-3 overflow-hidden shadow-lg">
-              <div className="grid grid-cols-2 gap-2 mb-2 text-xs font-medium text-slate-400 border-b border-slate-700 pb-2">
+            <div className="bg-slate-50 border border-slate-200 rounded-md p-3 overflow-hidden shadow-sm">
+              <div className="grid grid-cols-2 gap-2 mb-2 text-xs font-medium text-slate-500 border-b border-slate-200 pb-2">
                 <div>Amount</div>
                 <div className="text-right">Time</div>
               </div>
-              <div className="max-h-60 overflow-y-auto space-y-1 scrollbar-thin scrollbar-thumb-slate-700">
+              <div className="max-h-60 overflow-y-auto space-y-1 scrollbar-thin scrollbar-thumb-slate-200">
                 {property.bids
                   .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
                   .map((bid, index) => {
@@ -227,16 +227,16 @@ export default function BidForm({ property }: BidFormProps) {
                     return (
                       <div 
                         key={bid.id}
-                        className="grid grid-cols-2 gap-2 py-1.5 px-2 text-sm border-b border-slate-700 hover:bg-slate-700 rounded-sm transition-colors animate-fadeIn"
+                        className="grid grid-cols-2 gap-2 py-1.5 px-2 text-sm border-b border-slate-100 hover:bg-slate-100 rounded-sm transition-colors animate-fadeIn"
                         style={{ animationDelay }}
                       >
                         <div className="flex items-center">
-                          <DollarSign className="h-3 w-3 mr-1 text-blue-400" />
-                          <span className="font-mono font-medium text-blue-200">
+                          <DollarSign className="h-3 w-3 mr-1 text-blue-600" />
+                          <span className="font-mono font-medium text-slate-700">
                             {formatPrice(amount)}
                           </span>
                         </div>
-                        <div className="text-right text-xs font-mono text-slate-400">
+                        <div className="text-right text-xs font-mono text-slate-500">
                           {bidTime}
                         </div>
                       </div>
@@ -249,7 +249,7 @@ export default function BidForm({ property }: BidFormProps) {
 
         {user ? (
           <div className="mb-6">
-            <h3 className="font-medium text-emerald-300 mb-3 flex items-center">
+            <h3 className="font-medium text-emerald-600 mb-3 flex items-center">
               <DollarSign className="h-4 w-4 mr-1" /> Place Your Bid
             </h3>
             <Form {...form}>
@@ -261,11 +261,11 @@ export default function BidForm({ property }: BidFormProps) {
                     <FormItem>
                       <FormControl>
                         <div className="flex items-center">
-                          <span className="text-lg mr-2 text-emerald-400">$</span>
+                          <span className="text-lg mr-2 text-emerald-600">$</span>
                           <Input 
                             type="text" 
                             placeholder="Enter bid amount"
-                            className="flex-1 bg-slate-800 border-slate-700 text-white font-mono placeholder:text-slate-500"
+                            className="flex-1 bg-white border-slate-200 text-slate-800 font-mono placeholder:text-slate-400"
                             {...field}
                             value={suggestedAmount || field.value}
                             onChange={(e) => {
@@ -275,38 +275,43 @@ export default function BidForm({ property }: BidFormProps) {
                           />
                         </div>
                       </FormControl>
-                      <FormMessage className="text-pink-400" />
+                      <FormMessage className="text-red-500" />
                     </FormItem>
                   )}
                 />
                 
-                <div className="text-xs text-slate-400">
+                <div className="text-xs text-slate-600">
                   <p className="mb-1">Quick bid options:</p>
                   <div className="flex flex-wrap gap-2">
+                    {/* Only show minimum and middle bid options if there's already a bid */}
+                    {property.topBid && (
+                      <>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="px-2 py-1 bg-blue-50 border-blue-200 text-blue-600 hover:bg-blue-100 hover:text-blue-700 text-xs font-mono"
+                          onClick={() => handleSuggestedBidClick(suggestedBids[0])}
+                        >
+                          Minimum: {formatPrice(suggestedBids[0])}
+                          <span className="ml-1 text-blue-400">(+$100)</span>
+                        </Button>
+                        <Button
+                          type="button"
+                          variant="outline"
+                          size="sm"
+                          className="px-2 py-1 bg-purple-50 border-purple-200 text-purple-600 hover:bg-purple-100 hover:text-purple-700 text-xs font-mono"
+                          onClick={() => handleSuggestedBidClick(suggestedBids[1])}
+                        >
+                          Middle: {formatPrice(suggestedBids[1])}
+                        </Button>
+                      </>
+                    )}
                     <Button
                       type="button"
                       variant="outline"
                       size="sm"
-                      className="px-2 py-1 bg-slate-700 border-slate-600 text-blue-300 hover:bg-slate-600 hover:text-blue-200 text-xs font-mono"
-                      onClick={() => handleSuggestedBidClick(suggestedBids[0])}
-                    >
-                      Minimum: {formatPrice(suggestedBids[0])}
-                      <span className="ml-1 text-slate-400">(+$100)</span>
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="px-2 py-1 bg-slate-700 border-slate-600 text-purple-300 hover:bg-slate-600 hover:text-purple-200 text-xs font-mono"
-                      onClick={() => handleSuggestedBidClick(suggestedBids[1])}
-                    >
-                      Middle: {formatPrice(suggestedBids[1])}
-                    </Button>
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      className="px-2 py-1 bg-slate-700 border-slate-600 text-emerald-300 hover:bg-slate-600 hover:text-emerald-200 text-xs font-mono"
+                      className="px-2 py-1 bg-emerald-50 border-emerald-200 text-emerald-600 hover:bg-emerald-100 hover:text-emerald-700 text-xs font-mono"
                       onClick={() => handleSuggestedBidClick(suggestedBids[2])}
                     >
                       Buy Now: {formatPrice(suggestedBids[2])}
@@ -316,7 +321,7 @@ export default function BidForm({ property }: BidFormProps) {
                 
                 <Button 
                   type="submit" 
-                  className="w-full py-3 bg-gradient-to-r from-emerald-600 to-blue-600 hover:from-emerald-500 hover:to-blue-500 text-white border-none"
+                  className="w-full py-3 bg-gradient-to-r from-emerald-500 to-blue-500 hover:from-emerald-400 hover:to-blue-400 text-white border-none"
                   disabled={bidMutation.isPending}
                 >
                   {bidMutation.isPending ? (
@@ -329,8 +334,8 @@ export default function BidForm({ property }: BidFormProps) {
             </Form>
           </div>
         ) : (
-          <div className="mb-6 p-4 bg-slate-800 border border-slate-700 rounded-lg text-center">
-            <p className="text-slate-300 mb-3">You need to sign in to place a bid on this property.</p>
+          <div className="mb-6 p-4 bg-slate-50 border border-slate-200 rounded-lg text-center">
+            <p className="text-slate-700 mb-3">You need to sign in to place a bid on this property.</p>
             <Button asChild className="bg-blue-600 hover:bg-blue-500">
               <Link href="/auth">Sign In to Trade</Link>
             </Button>
