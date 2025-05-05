@@ -1,11 +1,9 @@
-import express, { type Express } from "express";
+import type { Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { insertBidSchema, insertVisitSchema } from "@shared/schema";
 import { z } from "zod";
-import path from "path";
-import fs from "fs";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes
@@ -180,24 +178,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Error fetching user visits:", error);
       return res.status(500).json({ message: "Failed to fetch visits" });
     }
-  });
-
-  // Add a test route to view the application
-  app.get("/test", (req, res) => {
-    const testHtmlPath = path.resolve("test.html");
-    if (fs.existsSync(testHtmlPath)) {
-      res.sendFile(testHtmlPath);
-    } else {
-      res.status(404).send("Test file not found");
-    }
-  });
-  
-  // Serve static files from the public directory
-  app.use(express.static(path.resolve("public")) as any);
-  
-  // Serve our preview HTML at the root
-  app.get("/preview", (req, res) => {
-    res.sendFile(path.resolve("public/index.html"));
   });
 
   const httpServer = createServer(app);
