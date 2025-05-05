@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import express, { type Express } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { setupAuth } from "./auth";
@@ -190,6 +190,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } else {
       res.status(404).send("Test file not found");
     }
+  });
+  
+  // Serve static files from the public directory
+  app.use(express.static(path.resolve("public")) as any);
+  
+  // Serve our preview HTML at the root
+  app.get("/preview", (req, res) => {
+    res.sendFile(path.resolve("public/index.html"));
   });
 
   const httpServer = createServer(app);
