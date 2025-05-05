@@ -3,7 +3,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useAuth } from "@/hooks/use-auth";
 import { Property } from "@shared/schema";
 import { useToast } from "@/hooks/use-toast";
-import { Loader2 } from "lucide-react";
+import { Loader2, ArrowDownIcon, ArrowUpIcon, ChevronDown, ChevronUp, DollarSign } from "lucide-react";
 import { queryClient, apiRequest } from "@/lib/queryClient";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -25,9 +25,17 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "wouter";
+import { format } from "date-fns";
 
 interface BidFormProps {
-  property: Property & { topBid: number | null };
+  property: Property & { 
+    topBid: number | null;
+    bids?: {
+      id: number;
+      amount: string;
+      createdAt: string;
+    }[];
+  };
 }
 
 const bidFormSchema = z.object({
@@ -141,24 +149,48 @@ export default function BidForm({ property }: BidFormProps) {
 
   return (
     <Card>
-      <CardHeader>
-        <CardTitle>Bid Information</CardTitle>
+      <CardHeader className="border-b border-slate-100">
+        <CardTitle className="flex items-center">
+          <DollarSign className="h-5 w-5 mr-2 text-primary" />
+          Market Dashboard
+        </CardTitle>
       </CardHeader>
       <CardContent>
+        {/* Stock market-like price display */}
         <div className="mb-4 pb-4 border-b border-slate-100">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-slate-500">Asking Price</span>
-            <span className="text-primary font-semibold text-2xl">
-              {formatPrice(property.askingPrice)}
-            </span>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-slate-50 p-3 rounded-md">
+              <div className="text-slate-500 text-sm mb-1">Ask Price</div>
+              <div className="flex items-center">
+                <span className="text-emerald-600 font-semibold text-2xl">
+                  {formatPrice(property.askingPrice)}
+                </span>
+                <ArrowUpIcon className="h-4 w-4 ml-1 text-emerald-500" />
+              </div>
+            </div>
+            
+            <div className="bg-slate-50 p-3 rounded-md">
+              <div className="text-slate-500 text-sm mb-1">Current Bid</div>
+              <div className="flex items-center">
+                <span className={`font-semibold text-2xl ${property.topBid ? 'text-blue-600' : 'text-slate-400'}`}>
+                  {property.topBid ? formatPrice(property.topBid) : "No bids"}
+                </span>
+                {property.topBid && <ChevronUp className="h-4 w-4 ml-1 text-blue-500" />}
+              </div>
+            </div>
           </div>
-          <div className="flex items-center justify-between">
-            <span className="text-slate-500">Current Top Bid</span>
-            <span className="text-accent font-semibold text-xl">
-              {property.topBid 
-                ? formatPrice(property.topBid) 
-                : "No bids yet"}
-            </span>
+          
+          <div className="mt-4 flex justify-between items-center">
+            <div className="text-xs text-slate-500">
+              <span className="inline-block bg-slate-200 rounded-sm px-1 py-0.5">
+                Total Bids: {property.bids?.length || 0}
+              </span>
+            </div>
+            <div className="text-xs text-slate-500">
+              <span className="inline-block bg-slate-200 rounded-sm px-1 py-0.5">
+                Views: {property.viewCount || 0}
+              </span>
+            </div>
           </div>
         </div>
         
@@ -244,6 +276,45 @@ export default function BidForm({ property }: BidFormProps) {
           </div>
         )}
         
+        {/* Stock Market-like Bid History */}
+        {property.bids && property.bids.length > 0 && (
+          <div className="mt-4">
+            <h3 className="font-medium text-slate-800 mb-3">Bid History</h3>
+            <div className="bg-slate-50 rounded-md p-3 overflow-hidden">
+              <div className="grid grid-cols-2 gap-2 mb-2 text-xs font-medium text-slate-500 border-b border-slate-200 pb-2">
+                <div>Amount</div>
+                <div className="text-right">Time</div>
+              </div>
+              <div className="max-h-60 overflow-y-auto space-y-1">
+                {property.bids
+                  .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                  .map((bid) => {
+                    // Parse bid amount
+                    const amount = typeof bid.amount === 'string' ? parseFloat(bid.amount) : bid.amount;
+                    // Get formatted time
+                    const bidTime = format(new Date(bid.createdAt), "MMM d, h:mm a");
+                    
+                    return (
+                      <div 
+                        key={bid.id}
+                        className="grid grid-cols-2 gap-2 py-1.5 px-2 text-sm border-b border-slate-100 hover:bg-slate-100 rounded-sm"
+                      >
+                        <div className="flex items-center">
+                          <DollarSign className="h-3 w-3 mr-1 text-emerald-500" />
+                          <span className="font-medium text-slate-800">
+                            {formatPrice(amount)}
+                          </span>
+                        </div>
+                        <div className="text-right text-xs text-slate-500">
+                          {bidTime}
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+            </div>
+          </div>
+        )}
 
       </CardContent>
     </Card>

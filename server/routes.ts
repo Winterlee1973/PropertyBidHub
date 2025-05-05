@@ -37,6 +37,12 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(404).json({ message: "Property not found" });
       }
 
+      // Get the top bid for this property
+      const topBid = await storage.getTopBidForProperty(id);
+      
+      // Get all bids for this property (for stock market-like display)
+      const bids = await storage.getPropertyBids(id);
+
       // If the user is logged in, check if they've favorited this property
       let isFavorite = false;
       if (req.isAuthenticated()) {
@@ -45,6 +51,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
       return res.json({
         ...property,
+        topBid: topBid ? topBid.amount : null,
+        bids: bids.map(bid => ({
+          id: bid.id,
+          amount: bid.amount,
+          createdAt: bid.createdAt,
+          // Don't include user details for privacy
+        })),
         isFavorite
       });
     } catch (error) {
@@ -253,6 +266,27 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error removing from favorites:", error);
       return res.status(500).json({ message: "Failed to remove from favorites" });
+    }
+  });
+
+  // Increment property view count
+  app.post("/api/properties/:id/view", async (req, res) => {
+    try {
+      const propertyId = parseInt(req.params.id);
+      if (isNaN(propertyId)) {
+        return res.status(400).json({ message: "Invalid property ID" });
+      }
+
+      const property = await storage.getPropertyById(propertyId);
+      if (!property) {
+        return res.status(404).json({ message: "Property not found" });
+      }
+
+      await storage.incrementPropertyViewCount(propertyId);
+      return res.status(200).json({ success: true });
+    } catch (error) {
+      console.error("Error incrementing view count:", error);
+      return res.status(500).json({ message: "Failed to increment view count" });
     }
   });
 
