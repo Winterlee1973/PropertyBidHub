@@ -104,12 +104,12 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-100 py-12">
+    <div className="min-h-screen bg-slate-100">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex flex-col lg:flex-row bg-white rounded-lg shadow-xl overflow-hidden">
-          {/* Hero Section */}
-          <div className="w-full lg:w-1/2 bg-primary p-12 text-white">
-            <div className="flex items-center space-x-2 mb-8">
+          {/* Hero Section - hidden on mobile, visible on larger screens */}
+          <div className="hidden lg:block w-full lg:w-1/2 bg-primary p-8 text-white">
+            <div className="flex items-center space-x-2 mb-6">
               <svg xmlns="http://www.w3.org/2000/svg" className="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
                 <polyline points="9 22 9 12 15 12 15 22"></polyline>
@@ -117,11 +117,11 @@ export default function AuthPage() {
               <h1 className="text-2xl font-bold">PropertyBid</h1>
             </div>
             <h2 className="text-3xl font-bold mb-6">Find Your Dream Property and Make it Yours</h2>
-            <p className="text-lg mb-8">
+            <p className="text-lg mb-6">
               PropertyBid is the premier platform for real estate bidding. Browse exclusive properties, 
               place competitive bids, and schedule visits - all in one place.
             </p>
-            <div className="space-y-6">
+            <div className="space-y-4">
               <div className="flex items-center space-x-3">
                 <div className="bg-white/20 p-2 rounded-full">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -152,8 +152,19 @@ export default function AuthPage() {
             </div>
           </div>
 
+          {/* Small branding for mobile only */}
+          <div className="block lg:hidden bg-primary p-4 text-white">
+            <div className="flex items-center justify-center space-x-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                <polyline points="9 22 9 12 15 12 15 22"></polyline>
+              </svg>
+              <h1 className="text-xl font-bold">PropertyBid</h1>
+            </div>
+          </div>
+
           {/* Form Section */}
-          <div className="w-full lg:w-1/2 p-12">
+          <div className="w-full lg:w-1/2 p-6">
             <div className="max-w-md mx-auto">
               <h2 className="text-2xl font-bold text-slate-800 mb-6">
                 {isLogin ? "Sign In to Your Account" : "Create a New Account"}
