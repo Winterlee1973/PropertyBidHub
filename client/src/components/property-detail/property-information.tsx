@@ -37,11 +37,7 @@ export default function PropertyInformation({ property }: PropertyInformationPro
             </div>
           </div>
           
-          <div className="text-slate-600 mb-4">
-            {property.description.split('\n').map((paragraph, index) => (
-              <p key={index} className="mb-4">{paragraph}</p>
-            ))}
-          </div>
+          {/* Description moved to a different location */}
           
           {features.length > 0 && (
             <div className="mt-6">

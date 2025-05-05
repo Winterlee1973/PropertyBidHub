@@ -23,27 +23,35 @@ export default function LandingPage() {
   const [selectedLocation, setSelectedLocation] = useState<typeof LOCATIONS[0] | null>(null);
   const [, setLocation] = useLocation();
 
-  // Filter locations based on search term
+  // Filter locations based on search term - no minimum character restriction for zip codes
   const filteredLocations = LOCATIONS.filter(location => {
-    if (searchTerm.length < 3) return false;
+    // Always show all locations when typing zip codes (numbers)
+    if (/^\d+$/.test(searchTerm)) {
+      return location.zip.includes(searchTerm);
+    }
+    
+    // For text search, require at least 2 characters
+    if (searchTerm.length < 2 && !/^\d+$/.test(searchTerm)) return false;
     
     return location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
       location.state.toLowerCase().includes(searchTerm.toLowerCase()) ||
       location.zip.includes(searchTerm);
   });
 
-  // Reset location if search term changes
+  // Handle search term changes
   useEffect(() => {
-    if (searchTerm.length < 3) {
+    // Reset selection only if search is empty
+    if (searchTerm.length === 0) {
       setSelectedLocation(null);
     }
-    // Always ensure popover is open when we have 3+ characters
-    if (searchTerm.length >= 3) {
+    
+    // Keep popover open when typing
+    if (searchTerm.length > 0 && filteredLocations.length > 0) {
       setOpen(true);
     } else {
       setOpen(false);
     }
-  }, [searchTerm]);
+  }, [searchTerm, filteredLocations.length]);
 
   // Handle search submission
   const handleSearch = () => {
@@ -75,7 +83,7 @@ export default function LandingPage() {
               
               {/* Search Box */}
               <div className="relative flex w-full max-w-xl mx-auto">
-                <Popover open={open && searchTerm.length >= 3} onOpenChange={setOpen}>
+                <Popover open={open} onOpenChange={setOpen}>
                   <PopoverTrigger asChild>
                     <div className="flex flex-grow rounded-md relative">
                       <Input
