@@ -16,6 +16,7 @@ export const users = pgTable("users", {
 export const usersRelations = relations(users, ({ many }) => ({
   bids: many(bids),
   visits: many(visits),
+  favorites: many(favorites),
 }));
 
 // Properties table
@@ -37,6 +38,7 @@ export const properties = pgTable("properties", {
   isFeatured: boolean("is_featured").default(false),
   isNewListing: boolean("is_new_listing").default(false),
   isHotProperty: boolean("is_hot_property").default(false),
+  viewCount: integer("view_count").default(0),
   endDate: timestamp("end_date").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
@@ -44,6 +46,7 @@ export const properties = pgTable("properties", {
 export const propertiesRelations = relations(properties, ({ many }) => ({
   bids: many(bids),
   visits: many(visits),
+  favorites: many(favorites),
 }));
 
 // Bids table
@@ -77,6 +80,14 @@ export const visits = pgTable("visits", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// Favorites table to track saved properties
+export const favorites = pgTable("favorites", {
+  id: serial("id").primaryKey(),
+  userId: integer("user_id").references(() => users.id).notNull(),
+  propertyId: integer("property_id").references(() => properties.id).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const visitsRelations = relations(visits, ({ one }) => ({
   user: one(users, {
     fields: [visits.userId],
@@ -84,6 +95,17 @@ export const visitsRelations = relations(visits, ({ one }) => ({
   }),
   property: one(properties, {
     fields: [visits.propertyId],
+    references: [properties.id],
+  }),
+}));
+
+export const favoritesRelations = relations(favorites, ({ one }) => ({
+  user: one(users, {
+    fields: [favorites.userId],
+    references: [users.id],
+  }),
+  property: one(properties, {
+    fields: [favorites.propertyId],
     references: [properties.id],
   }),
 }));
@@ -114,6 +136,11 @@ export const insertVisitSchema = createInsertSchema(visits).omit({
   createdAt: true 
 });
 
+export const insertFavoriteSchema = createInsertSchema(favorites).omit({
+  id: true,
+  createdAt: true
+});
+
 export const loginSchema = z.object({
   email: z.string().email("Please enter a valid email"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -132,3 +159,6 @@ export type InsertBid = z.infer<typeof insertBidSchema>;
 
 export type Visit = typeof visits.$inferSelect;
 export type InsertVisit = z.infer<typeof insertVisitSchema>;
+
+export type Favorite = typeof favorites.$inferSelect;
+export type InsertFavorite = z.infer<typeof insertFavoriteSchema>;

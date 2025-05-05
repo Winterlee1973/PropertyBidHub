@@ -20,6 +20,11 @@ export interface IStorage {
   scheduleVisit(visit: InsertVisit): Promise<any>;
   getUserBids(userId: number): Promise<any[]>;
   getUserVisits(userId: number): Promise<any[]>;
+  incrementPropertyViewCount(propertyId: number): Promise<void>;
+  getUserFavorites(userId: number): Promise<any[]>;
+  addPropertyToFavorites(userId: number, propertyId: number): Promise<any>;
+  removePropertyFromFavorites(userId: number, propertyId: number): Promise<boolean>;
+  isPropertyFavorited(userId: number, propertyId: number): Promise<boolean>;
   sessionStore: session.Store;
 }
 
@@ -148,6 +153,74 @@ export class DatabaseStorage implements IStorage {
     });
 
     return userVisits;
+  }
+
+  async incrementPropertyViewCount(propertyId: number): Promise<void> {
+    await db
+      .update(properties)
+      .set({ viewCount: sql`${properties.viewCount} + 1` })
+      .where(eq(properties.id, propertyId));
+  }
+
+  async getUserFavorites(userId: number): Promise<any[]> {
+    const userFavorites = await db.query.favorites.findMany({
+      where: eq(favorites.userId, userId),
+      orderBy: desc(favorites.createdAt),
+      with: {
+        property: true,
+      },
+    });
+
+    return userFavorites;
+  }
+
+  async addPropertyToFavorites(userId: number, propertyId: number): Promise<any> {
+    // Check if already favorited
+    const existing = await db.query.favorites.findFirst({
+      where: and(
+        eq(favorites.userId, userId),
+        eq(favorites.propertyId, propertyId)
+      ),
+    });
+
+    if (existing) {
+      return existing;
+    }
+
+    const result = await db
+      .insert(favorites)
+      .values({
+        userId,
+        propertyId,
+      })
+      .returning();
+
+    return result[0];
+  }
+
+  async removePropertyFromFavorites(userId: number, propertyId: number): Promise<boolean> {
+    const result = await db
+      .delete(favorites)
+      .where(
+        and(
+          eq(favorites.userId, userId),
+          eq(favorites.propertyId, propertyId)
+        )
+      )
+      .returning();
+
+    return result.length > 0;
+  }
+
+  async isPropertyFavorited(userId: number, propertyId: number): Promise<boolean> {
+    const favorite = await db.query.favorites.findFirst({
+      where: and(
+        eq(favorites.userId, userId),
+        eq(favorites.propertyId, propertyId)
+      ),
+    });
+
+    return !!favorite;
   }
 }
 
