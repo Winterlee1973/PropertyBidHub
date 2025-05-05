@@ -29,12 +29,24 @@ export async function registerRoutes(app: Express): Promise<Server> {
         return res.status(400).json({ message: "Invalid property ID" });
       }
 
+      // Increment view count
+      await storage.incrementPropertyViewCount(id);
+
       const property = await storage.getPropertyById(id);
       if (!property) {
         return res.status(404).json({ message: "Property not found" });
       }
 
-      return res.json(property);
+      // If the user is logged in, check if they've favorited this property
+      let isFavorite = false;
+      if (req.isAuthenticated()) {
+        isFavorite = await storage.isPropertyFavorited(req.user.id, id);
+      }
+
+      return res.json({
+        ...property,
+        isFavorite
+      });
     } catch (error) {
       console.error("Error fetching property:", error);
       return res.status(500).json({ message: "Failed to fetch property" });
@@ -177,6 +189,70 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user visits:", error);
       return res.status(500).json({ message: "Failed to fetch visits" });
+    }
+  });
+
+  // Get user favorites
+  app.get("/api/user/favorites", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "You must be logged in to view your favorites" });
+    }
+
+    try {
+      const favorites = await storage.getUserFavorites(req.user.id);
+      return res.json(favorites);
+    } catch (error) {
+      console.error("Error fetching user favorites:", error);
+      return res.status(500).json({ message: "Failed to fetch favorites" });
+    }
+  });
+
+  // Add property to favorites
+  app.post("/api/properties/:id/favorite", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "You must be logged in to save properties" });
+    }
+
+    try {
+      const propertyId = parseInt(req.params.id);
+      if (isNaN(propertyId)) {
+        return res.status(400).json({ message: "Invalid property ID" });
+      }
+
+      const property = await storage.getPropertyById(propertyId);
+      if (!property) {
+        return res.status(404).json({ message: "Property not found" });
+      }
+
+      const favorite = await storage.addPropertyToFavorites(req.user.id, propertyId);
+      return res.status(201).json(favorite);
+    } catch (error) {
+      console.error("Error adding to favorites:", error);
+      return res.status(500).json({ message: "Failed to add to favorites" });
+    }
+  });
+
+  // Remove property from favorites
+  app.delete("/api/properties/:id/favorite", async (req, res) => {
+    if (!req.isAuthenticated()) {
+      return res.status(401).json({ message: "You must be logged in to manage favorites" });
+    }
+
+    try {
+      const propertyId = parseInt(req.params.id);
+      if (isNaN(propertyId)) {
+        return res.status(400).json({ message: "Invalid property ID" });
+      }
+
+      const removed = await storage.removePropertyFromFavorites(req.user.id, propertyId);
+      if (removed) {
+        return res.status(200).json({ success: true });
+      } else {
+        return res.status(404).json({ message: "Favorite not found" });
+      }
+    } catch (error) {
+      console.error("Error removing from favorites:", error);
+      return res.status(500).json({ message: "Failed to remove from favorites" });
     }
   });
 

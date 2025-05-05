@@ -1,7 +1,7 @@
 import { db } from "@db";
-import { bids, properties, users, visits } from "@shared/schema";
+import { bids, properties, users, visits, favorites } from "@shared/schema";
 import { InsertBid, InsertUser, InsertVisit, User } from "@shared/schema";
-import { desc, eq, sql } from "drizzle-orm";
+import { desc, eq, sql, and } from "drizzle-orm";
 import session from "express-session";
 import connectPg from "connect-pg-simple";
 import { pool } from "@db";
