@@ -4,6 +4,8 @@ import { storage } from "./storage";
 import { setupAuth } from "./auth";
 import { insertBidSchema, insertVisitSchema } from "@shared/schema";
 import { z } from "zod";
+import path from "path";
+import fs from "fs";
 
 export async function registerRoutes(app: Express): Promise<Server> {
   // Setup authentication routes
@@ -177,6 +179,16 @@ export async function registerRoutes(app: Express): Promise<Server> {
     } catch (error) {
       console.error("Error fetching user visits:", error);
       return res.status(500).json({ message: "Failed to fetch visits" });
+    }
+  });
+
+  // Add a test route to view the application
+  app.get("/test", (req, res) => {
+    const testHtmlPath = path.resolve("test.html");
+    if (fs.existsSync(testHtmlPath)) {
+      res.sendFile(testHtmlPath);
+    } else {
+      res.status(404).send("Test file not found");
     }
   });
 
