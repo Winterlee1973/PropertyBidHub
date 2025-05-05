@@ -183,7 +183,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
             className="bg-primary text-white text-sm px-3 py-1 rounded hover:bg-blue-700 transition duration-200"
             asChild
           >
-            <Link href={`/property/${property.id}`}>Place Bid</Link>
+            <Link href={`/property/${property.id}`}>View Property</Link>
           </Button>
         </div>
       </div>

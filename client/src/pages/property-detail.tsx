@@ -23,6 +23,24 @@ export default function PropertyDetail() {
   const { toast } = useToast();
   const [isFavorite, setIsFavorite] = useState(false);
 
+  // Effect to track view count
+  useEffect(() => {
+    if (propertyId) {
+      // Increment view count when page loads
+      const incrementViewCount = async () => {
+        try {
+          await apiRequest("POST", `/api/properties/${propertyId}/view`);
+          // Invalidate the property query to get updated view count
+          queryClient.invalidateQueries({ queryKey: [`/api/properties/${propertyId}`] });
+        } catch (error) {
+          console.error("Failed to increment view count:", error);
+        }
+      };
+      
+      incrementViewCount();
+    }
+  }, [propertyId]);
+
   const { data: property, isLoading, error } = useQuery<Property & { topBid: number | null, isFavorite: boolean }>({
     queryKey: [`/api/properties/${propertyId}`],
     enabled: !!propertyId,
