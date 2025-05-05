@@ -198,6 +198,11 @@ export default function PropertyDetail() {
         </div>
       </div>
 
+      {/* Trade Dashboard (moved to top) */}
+      <div className="mb-8">
+        <BidForm property={property} />
+      </div>
+
       {/* Property Gallery */}
       <PropertyGallery images={property.images} />
 
@@ -210,11 +215,6 @@ export default function PropertyDetail() {
 
         {/* Sidebar */}
         <div>
-          {/* Price and Bidding Info */}
-          <BidForm property={property} />
-          
-          <Separator className="my-6" />
-          
           {/* Schedule Visit */}
           <VisitForm propertyId={property.id} />
         </div>

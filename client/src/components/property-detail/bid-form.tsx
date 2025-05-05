@@ -77,17 +77,25 @@ export default function BidForm({ property }: BidFormProps) {
     });
   };
 
-  // Calculate suggested bid amounts
+  // Calculate bid options for minimum, middle, and buy now
   const getSuggestedBids = () => {
     const askingPrice = Number(property.askingPrice);
-    const currentTopBid = property.topBid ? Number(property.topBid) : askingPrice;
-    const baseBid = Math.max(askingPrice, currentTopBid);
+    const currentTopBid = property.topBid ? Number(property.topBid) : (askingPrice * 0.80); // Default to 80% of asking if no bids
+    
+    // Option 1: Minimum bid ($100 over current bid)
+    const minimumBid = currentTopBid + 100;
+    
+    // Option 2: Middle bid (halfway between current bid and asking price)
+    const middleBid = currentTopBid + ((askingPrice - currentTopBid) / 2);
+    
+    // Option 3: Buy now at the asking price
+    const buyNowBid = askingPrice;
     
     return [
-      baseBid + (baseBid * 0.01), // 1% increment
-      baseBid + (baseBid * 0.02), // 2% increment
-      baseBid + (baseBid * 0.05), // 5% increment
-    ].map(amount => Math.ceil(amount / 1000) * 1000); // Round up to nearest thousand
+      Math.ceil(minimumBid), // Minimum bid
+      Math.ceil(middleBid), // Middle ground bid
+      Math.ceil(buyNowBid), // Buy now price
+    ];
   };
   
   const form = useForm<z.infer<typeof bidFormSchema>>({
@@ -275,18 +283,34 @@ export default function BidForm({ property }: BidFormProps) {
                 <div className="text-xs text-slate-400">
                   <p className="mb-1">Quick bid options:</p>
                   <div className="flex flex-wrap gap-2">
-                    {suggestedBids.map((amount, index) => (
-                      <Button
-                        key={index}
-                        type="button"
-                        variant="outline"
-                        size="sm"
-                        className="px-2 py-1 bg-slate-700 border-slate-600 text-emerald-300 hover:bg-slate-600 hover:text-emerald-200 text-xs font-mono"
-                        onClick={() => handleSuggestedBidClick(amount)}
-                      >
-                        {formatPrice(amount)}
-                      </Button>
-                    ))}
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="px-2 py-1 bg-slate-700 border-slate-600 text-blue-300 hover:bg-slate-600 hover:text-blue-200 text-xs font-mono"
+                      onClick={() => handleSuggestedBidClick(suggestedBids[0])}
+                    >
+                      Minimum: {formatPrice(suggestedBids[0])}
+                      <span className="ml-1 text-slate-400">(+$100)</span>
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="px-2 py-1 bg-slate-700 border-slate-600 text-purple-300 hover:bg-slate-600 hover:text-purple-200 text-xs font-mono"
+                      onClick={() => handleSuggestedBidClick(suggestedBids[1])}
+                    >
+                      Middle: {formatPrice(suggestedBids[1])}
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      className="px-2 py-1 bg-slate-700 border-slate-600 text-emerald-300 hover:bg-slate-600 hover:text-emerald-200 text-xs font-mono"
+                      onClick={() => handleSuggestedBidClick(suggestedBids[2])}
+                    >
+                      Buy Now: {formatPrice(suggestedBids[2])}
+                    </Button>
                   </div>
                 </div>
                 
