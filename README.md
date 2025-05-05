@@ -1,4 +1,4 @@
-# PropertyBid - Real Estate Bidding Platform
+# 🏠 PropertyBidHub - Real Estate Bidding Platform
 
 A dynamic real estate bidding platform that enables users to view properties, place competitive bids, and manage property visits with enhanced mobile compatibility.
 
@@ -19,25 +19,103 @@ A dynamic real estate bidding platform that enables users to view properties, pl
 - **Authentication**: Passport.js
 - **Styling**: Tailwind CSS with shadcn/ui components
 
-## Getting Started
+## 🔧 Local Setup (VSCode)
 
-### Prerequisites
+1. **Clone the repo:**
 
-- Node.js (v18+)
-- PostgreSQL database
-
-### Installation
-
-1. Clone the repository
-2. Install dependencies:
+   ```bash
+   git clone https://github.com/Winterlee1973/PropertyBidHub.git
+   cd PropertyBidHub
    ```
+
+2. **Install Node.js LTS (v20 recommended)** using [nvm](https://github.com/nvm-sh/nvm):
+
+   ```bash
+   nvm install 20
+   nvm use 20
+   ```
+
+3. **Install dependencies & build:**
+
+   ```bash
    npm install
+   npx tsc
    ```
-3. Set up environment variables (see `.env.example`)
-4. Start the development server:
+
+4. **Create a `.env` file:**
+
+   ```env
+   DATABASE_URL=your_postgres_url_here
+   SESSION_SECRET=your_secret_here
+   PORT=5000
    ```
+
+5. **Run the server:**
+
+   ```bash
    npm run dev
    ```
+
+## ☁️ Replit Setup
+
+1. **Pull latest from GitHub (if needed):**
+
+   ```bash
+   git pull origin main
+   ```
+
+2. **Install dotenv using Replit tool:**
+
+   ```bash
+   packager_tool install nodejs ["dotenv"]
+   ```
+
+3. **Set secrets (🔒 Secrets tab in Replit):**
+
+   * `DATABASE_URL`
+   * `SESSION_SECRET`
+
+4. **Start the server:**
+
+   ```bash
+   npm run dev
+   ```
+
+You should see:
+
+```bash
+> rest-express@1.0.0 dev
+> tsx server/index.ts
+[express] serving on port 5000
+```
+
+## 🔄 GitHub Sync Tips
+
+* **From VSCode to Replit:**
+
+  ```bash
+  git add .
+  git commit -m "My changes"
+  git push origin main
+  ```
+
+  Then in Replit:
+
+  ```bash
+  git pull origin main
+  ```
+
+* **From Replit to VSCode:**
+  Commit and push in Replit UI or shell, then in VSCode:
+
+  ```bash
+  git pull origin main
+  ```
+
+## 🛠️ Need to roll back?
+
+* Use VSCode Git Graph or `git checkout <commit-id>` to safely explore older versions.
+* Always push to GitHub after confirming you're on the right commit/branch.
 
 ## Project Structure
 
