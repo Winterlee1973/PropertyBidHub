@@ -16,7 +16,7 @@ const LOCATIONS = [
   { id: 4, name: "Huntingdon Valley", state: "Pennsylvania", zip: "19006" },
   { id: 5, name: "Huntley", state: "Illinois", zip: "60142" },
   // Special property ID location
-  { id: 100, name: "587 Duck Pond Road, Locust Valley", state: "New York", zip: "11743" },
+  { id: 100, name: "10000 587 Duck Pond Road, Locust Valley", state: "New York", zip: "11743" },
 ];
 
 export default function LandingPage() {
@@ -27,13 +27,17 @@ export default function LandingPage() {
 
   // Filter locations based on search term - no minimum character restriction for zip codes or property IDs
   const filteredLocations = LOCATIONS.filter(location => {
-    // Handle Property ID search (exactly "100")
-    if (searchTerm === "100") {
-      return location.id === 100;
+    // Handle Property ID search (for "100" and "10000")
+    if (searchTerm === "100" || searchTerm === "10000") {
+      return location.id === 100; // Show special property for both IDs
     }
     
     // Handle numeric property ID prefix
     if (/^10+\d*$/.test(searchTerm)) {
+      // Only show property if it's a complete match
+      if (searchTerm === "10000") {
+        return location.id === 100;
+      }
       return false; // Don't show any locations when typing property ID prefix (10...)
     }
     
@@ -57,25 +61,24 @@ export default function LandingPage() {
       setSelectedLocation(null);
     }
     
-    // Keep popover open when typing
-    if (searchTerm.length > 0 && filteredLocations.length > 0) {
-      setOpen(true);
-    } else {
+    // Only show popover when user clicks on input and has typed something
+    // No automatic opening while typing
+    if (searchTerm.length === 0) {
       setOpen(false);
     }
-  }, [searchTerm, filteredLocations.length]);
+  }, [searchTerm]);
 
   // Handle search submission
   const handleSearch = () => {
-    // Check if it's a property ID search (exact match for 100)
-    if (searchTerm === "100") {
-      // Navigate directly to property detail page
+    // Check if it's a property ID search for specific IDs
+    if (searchTerm === "100" || searchTerm === "10000") {
+      // Always navigate to property ID 100 for both searches
       setLocation(`/property/100`);
       return;
     }
     
-    // Check if it matches property ID pattern (10...)
-    if (/^10\d{3,}$/.test(searchTerm)) {
+    // Check if it matches other property ID patterns (10...)
+    if (/^10\d{3,}$/.test(searchTerm) && searchTerm !== "10000") {
       // Extract property ID from input
       const propertyId = searchTerm;
       setLocation(`/property/${propertyId}`);

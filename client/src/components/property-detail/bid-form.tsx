@@ -144,6 +144,26 @@ export default function BidForm({ property }: BidFormProps) {
       return;
     }
     
+    const bidAmount = Number(values.amount);
+    const askingPrice = Number(property.askingPrice);
+    
+    // Check if bid is Buy Now (exactly matching asking price)
+    if (bidAmount === askingPrice) {
+      // Place the bid at the asking price - this is a Buy Now purchase
+      bidMutation.mutate(askingPrice.toString());
+      return;
+    }
+    
+    // Regular bid validation only applies if it's not a Buy Now bid
+    if (property.topBid && bidAmount <= Number(property.topBid)) {
+      toast({
+        title: "Invalid Bid Amount",
+        description: "Your bid must be higher than the current highest bid.",
+        variant: "destructive",
+      });
+      return;
+    }
+    
     // Pass the amount as a string directly
     bidMutation.mutate(values.amount);
   };
