@@ -10,7 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Menu, Home, UserRound, ChevronDown, LogOut, Search } from "lucide-react";
+import { Menu, Home, UserRound, ChevronDown, LogOut, Search, CircleX, Check } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useMobile } from "@/hooks/use-mobile";
 
@@ -76,11 +76,11 @@ export default function Header() {
           {/* Location search bar - show on properties page */}
           {window.location.pathname.includes('/properties') && (
             <div className="flex-grow max-w-md hidden md:flex my-2">
-              <div className="flex-grow rounded-md relative">
+              <div className="flex-grow rounded-md relative flex items-center">
                 <Input
                   type="text"
                   placeholder="Search location..."
-                  className="w-full h-9 pl-8 pr-4 rounded-md text-gray-800 border-gray-300 focus:border-primary"
+                  className="w-full h-9 pl-8 pr-24 rounded-md text-gray-800 border-gray-300 focus:border-primary"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   onKeyDown={(e) => {
@@ -89,21 +89,29 @@ export default function Header() {
                     }
                   }}
                 />
+                {searchTerm && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-16 h-5 w-5"
+                    onClick={() => setSearchTerm("")}
+                  >
+                    <CircleX className="h-4 w-4" />
+                  </Button>
+                )}
+                {searchTerm && searchTerm !== new URLSearchParams(window.location.href.split("?")[1] || "").get("search") && (
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 h-9 border-l border-gray-300"
+                    onClick={handleSearch}
+                  >
+                    <Check className="h-4 w-4" />
+                  </Button>
+                )}
               </div>
             </div>
           )}
-          
-          <div className="hidden lg:flex items-center space-x-4 ml-auto mr-4">
-            {navLinks.map((link) => (
-              <Link 
-                key={link.name} 
-                href={link.href} 
-                className="text-slate-600 hover:text-primary whitespace-nowrap"
-              >
-                {link.name}
-              </Link>
-            ))}
-          </div>
           
           <div className="flex items-center ml-auto lg:ml-0 space-x-3">
             {user ? (
@@ -154,16 +162,6 @@ export default function Header() {
               </SheetTrigger>
               <SheetContent side="right">
                 <div className="flex flex-col space-y-4 mt-8">
-                  {navLinks.map((link) => (
-                    <Link 
-                      key={link.name} 
-                      href={link.href} 
-                      className="text-slate-600 py-2 hover:text-primary"
-                      onClick={() => setIsOpen(false)}
-                    >
-                      {link.name}
-                    </Link>
-                  ))}
                 </div>
               </SheetContent>
             </Sheet>
