@@ -1,92 +1,128 @@
-
 # PropertyBidHub
 
-PropertyBidHub is a web platform designed to facilitate online property bidding. This monorepo contains all the components needed for the application, including the client frontend, server backend, and database setup.
+A full‑stack real‑estate bidding platform powered by **Express + React + Vite** and **PostgreSQL (Drizzle ORM)**. Out of the box it runs locally in VS Code *and* in Replit with zero config.
 
-## Project Structure
+---
+
+## 🚀 Quick Start (local / VS Code)
+
+```bash
+# 1. Clone & install
+git clone https://github.com/yourname/PropertyBidHub.git
+cd PropertyBidHub
+npm install              # installs server + client + dev deps
+
+# 2. Configure environment
+cp .env.example .env
+# → edit .env and set:
+# DATABASE_URL=postgres://user:password@localhost:5432/propertybid
+
+# 3. Prepare the database
+npm run db:push          # creates tables via Drizzle
+npm run db:seed          # (optional) load demo data
+
+# 4. Launch the dev server
+npm run dev              # http://localhost:5000 (Vite + Express)
+```
+
+### One‑click launch in VS Code
+1. Open the folder (`code PropertyBidHub`).
+2. Install the suggested extensions (ESLint, Tailwind CSS IntelliSense, Prettier).
+3. Press **F5** or click **Run ▶** ▸ *Launch Dev Server*.
+
+---
+
+## ⚙️  Running on Replit
+This repo ships with a `.replit` file and Nix manifest.
+
+| Action | What happens |
+|--------|--------------|
+| **Run** button | Executes `npm run dev` inside a Node 20 + PostgreSQL 16 container |
+| **Secrets**    | Add `DATABASE_URL`, `JWT_SECRET`, etc. |
+| **Deploy**     | Uses the `build` + `start` commands defined under `[deployment]` |
+
+> **Tip:** Replit Postgres spins up automatically. Copy the generated connection string into `DATABASE_URL`, then run `npm run db:push` once.
+
+---
+
+## 🗂️  Directory structure
 
 ```
-PropertyBidHub-main/
-├── client/           # Frontend built with React and TypeScript
-├── server/           # Backend APIs and authentication
-├── db/               # Drizzle ORM database config and migrations
-├── shared/           # Shared schema and utilities
-├── attached_assets/  # Screenshots and design references
+/
+├─ client/              # React front‑end (Vite + shadcn/ui + Tailwind)
+├─ server/              # Express API & SSR entry
+├─ db/                  # Drizzle schemas & seed scripts
+├─ shared/              # Isomorphic utilities & types
+├─ .replit              # Replit runtime config
+├─ drizzle.config.ts    # Drizzle migration settings
+└─ tailwind.config.ts   # Design system tokens
 ```
 
-## Getting Started
+---
 
-### Prerequisites
+## 📦  Prerequisites
 
-- Node.js (v18 or later)
-- npm
-- Git
-- VS Code or Replit account
+| Tool        | Version            | Notes                                   |
+|-------------|--------------------|-----------------------------------------|
+| Node.js     | 18 LTS or higher (20 tested) | Required for server & client         |
+| npm         | 9+ (bundled with Node)       |                                       |
+| PostgreSQL  | 14+ **OR** Neon Serverless   | Connection string in `DATABASE_URL`   |
+| Git         | any                          |                                       |
+| (optional)  | VS Code extensions           | ESLint, Prettier, Tailwind IntelliSense, Prisma extension (works for Drizzle) |
 
 ---
 
-## ⚙️ Setup Instructions
+## 📝  Environment variables
 
-### In VS Code
+Create an `.env` file (ignored by Git) with at least:
 
-1. **Clone the repository**:
-   ```bash
-   git clone https://github.com/Winterlee1973/PropertyBidHub.git
-   cd PropertyBidHub
-   ```
+```
+DATABASE_URL=postgres://user:pass@host:port/db
+PORT=5000              # optional — defaults to 5000
+NODE_ENV=development   # or production
+```
 
-2. **Install dependencies**:
-   ```bash
-   npm install
-   ```
-
-3. **Run the app locally**:
-   ```bash
-   npm run dev
-   ```
-
-4. **Database setup**:
-   - Ensure SQLite is available.
-   - Apply migrations using:
-     ```bash
-     npm run db:push
-     ```
+Add the same keys in Replit under **Secrets** ➜ *Environment*.
 
 ---
 
-### In Replit
+## 🔧  Useful npm scripts
 
-1. **Import from GitHub**:
-   - Use the Replit "Import from GitHub" option and paste the repo URL.
-
-2. **Configure `.replit`**:
-   Ensure your `.replit` and `replit.nix` (if applicable) are set up to:
-   - Install dependencies
-   - Run the dev server using `npm run dev`
-
-3. **Environment Variables**:
-   Use Replit secrets to store any sensitive information (e.g., API keys, database paths).
-
-4. **Database**:
-   - Use Replit's filesystem (SQLite should work out of the box).
-   - Run migrations manually using the Replit shell.
+| Script | Purpose |
+|--------|---------|
+| `npm run dev`      | Hot‑reload server (tsx) + Vite client |
+| `npm run build`    | Bundle client & server for production  |
+| `npm run start`    | Start the compiled build (`dist/`)     |
+| `npm run check`    | Type‑check with `tsc`                  |
+| `npm run db:push`  | Push the current Drizzle schema        |
+| `npm run db:seed`  | Seed the DB with sample data           |
 
 ---
 
-## 🧪 Testing
+## 🏗️  Production build / Docker
 
-TBD – include testing setup and commands here if needed.
+```Dockerfile
+FROM node:20-alpine
+WORKDIR /app
+COPY . . 
+RUN npm ci --omit=dev && npm run build
+EXPOSE 5000
+CMD ["npm","run","start"]
+```
+
+Or build locally then copy only the `dist` folder and minimal `package.json`:
+
+```bash
+npm run build
+npm prune --omit=dev
+node dist/index.js
+```
 
 ---
 
-## 🔧 Troubleshooting
+## 💡  Project goals
+* Provide a simple codebase to experiment with full‑stack TypeScript.
+* Run unmodified in both **VS Code** and **Replit**.
+* Showcase Drizzle ORM + Radix UI + Tailwind + Vite SSR.
 
-- **Replit dev server not launching**: Ensure correct start command in `.replit`
-- **VS Code issues**: Make sure correct Node version and dependencies are installed
-- **Database errors**: Check SQLite file path and migration status
-
----
-
-## 📄 License
-
-This project is licensed under the MIT License.
+Feel free to fork and tweak—PRs welcome! 🎉
