@@ -93,6 +93,7 @@ export default function HomePage() {
       address: "687 Duck Pond Road",
       city: "Locust Valley",
       state: "NY",
+      zipCode: "11560",
       description: "A stunning luxury estate.",
       askingPrice: "0.00", // Placeholder
       beds: 0, // Placeholder

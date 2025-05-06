@@ -166,7 +166,7 @@ export default function PropertyDetail() {
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
           <div>
             <h1 className="text-3xl font-bold text-slate-800">{property.title}</h1>
-            <p className="text-slate-500 mt-1">{property.address}, {property.city}, {property.state}</p>
+            <p className="text-slate-500 mt-1">{property.address}, {property.city}, {property.state} {property.zipCode}</p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
             <Button 

@@ -26,6 +26,7 @@ export const properties = pgTable("properties", {
   address: text("address").notNull(),
   city: text("city").notNull(),
   state: text("state").notNull(),
+  zipCode: text("zip_code").notNull(),
   description: text("description").notNull(),
   askingPrice: decimal("asking_price", { precision: 10, scale: 2 }).notNull(),
   beds: integer("beds").notNull(),
@@ -118,9 +119,11 @@ export const insertUserSchema = createInsertSchema(users, {
   password: (schema) => schema.min(6, "Password must be at least 6 characters"),
 }).omit({ id: true, createdAt: true });
 
-export const insertPropertySchema = createInsertSchema(properties).omit({ 
-  id: true, 
-  createdAt: true 
+export const insertPropertySchema = createInsertSchema(properties, {
+  zipCode: (schema) => schema.min(5, "Zip code must be at least 5 characters"),
+}).omit({
+  id: true,
+  createdAt: true
 });
 
 export const insertBidSchema = createInsertSchema(bids, {

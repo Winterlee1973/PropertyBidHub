@@ -137,7 +137,7 @@ export default function PropertyCard({ property }: PropertyCardProps) {
               <span className="text-xs font-medium">{property.viewCount || 0} views</span>
             </div>
           </div>
-          <p className="text-slate-500 text-sm mb-2">{property.address}, {property.city}, {property.state}</p>
+          <p className="text-slate-500 text-sm mb-2">{property.address}, {property.city}, {property.state} {property.zipCode}</p>
           <div className="flex items-center justify-between mb-3">
             <div>
               <span className="text-primary font-semibold text-lg">{formatPrice(property.askingPrice)}</span>
