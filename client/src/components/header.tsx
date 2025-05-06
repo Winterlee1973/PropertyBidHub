@@ -10,9 +10,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Command, CommandEmpty, CommandGroup, CommandItem } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
-import { Menu, Home, UserRound, ChevronDown, LogOut, Search, MapPin, Check } from "lucide-react";
+import { Menu, Home, UserRound, ChevronDown, LogOut, Search } from "lucide-react";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { useMobile } from "@/hooks/use-mobile";
 
@@ -30,8 +28,6 @@ export default function Header() {
   const isMobile = useMobile();
   const [isOpen, setIsOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [openSearch, setOpenSearch] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<typeof LOCATIONS[0] | null>(null);
   const [, setLocation] = useLocation();
   
   // Parse URL search parameters to get existing location
@@ -39,33 +35,19 @@ export default function Header() {
     const url = window.location.href;
     const searchParams = new URLSearchParams(url.split("?")[1] || "");
     const locationParam = searchParams.get("location");
-    
+    const searchParam = searchParams.get("search");
+
     if (locationParam) {
       setSearchTerm(locationParam);
+    } else if (searchParam) {
+      setSearchTerm(searchParam);
     }
   }, []);
   
-  // Filter locations based on search term
-  const filteredLocations = LOCATIONS.filter(location => 
-    location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    location.state.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    location.zip.includes(searchTerm)
-  );
-  
   // Handle search submission
   const handleSearch = () => {
-    if (selectedLocation) {
-      // Navigate to properties page with the selected location as a query parameter
-      setLocation(`/properties?location=${selectedLocation.name},${selectedLocation.state}`);
-      setOpenSearch(false);
-    } else if (searchTerm.length >= 3 && filteredLocations.length > 0) {
-      // If no location is selected but there are filtered results, use the first one
-      setLocation(`/properties?location=${filteredLocations[0].name},${filteredLocations[0].state}`);
-      setOpenSearch(false);
-    } else if (searchTerm.length >= 3) {
-      // If no results, just search with the term as is
+    if (searchTerm.length > 0) {
       setLocation(`/properties?search=${searchTerm}`);
-      setOpenSearch(false);
     }
   };
   
@@ -94,62 +76,20 @@ export default function Header() {
           {/* Location search bar - show on properties page */}
           {window.location.pathname.includes('/properties') && (
             <div className="flex-grow max-w-md hidden md:flex my-2">
-              <Popover open={openSearch && searchTerm.length >= 3} onOpenChange={setOpenSearch}>
-                <PopoverTrigger asChild>
-                  <div className="flex flex-grow rounded-md relative">
-                    <Input
-                      type="text"
-                      placeholder="Search location..."
-                      className="w-full h-9 pl-8 pr-4 rounded-md text-gray-800 border-gray-300 focus:border-primary"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      onKeyDown={(e) => {
-                        if (e.key === 'Enter') {
-                          handleSearch();
-                        }
-                      }}
-                    />
-                    <span className="absolute left-2 top-1/2 transform -translate-y-1/2 text-gray-400">
-                      <Search size={16} />
-                    </span>
-                    {searchTerm && (
-                      <Button 
-                        variant="ghost"
-                        size="sm"
-                        className="absolute right-1 top-1/2 h-6 w-6 p-0 transform -translate-y-1/2"
-                        onClick={() => setSearchTerm("")}
-                      >
-                        &times;
-                      </Button>
-                    )}
-                  </div>
-                </PopoverTrigger>
-                <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-                  <Command>
-                    <CommandEmpty>No locations found.</CommandEmpty>
-                    <CommandGroup>
-                      {filteredLocations.map((location) => (
-                        <CommandItem
-                          key={location.id}
-                          onSelect={() => {
-                            setSelectedLocation(location);
-                            setSearchTerm(`${location.name}, ${location.state}`);
-                            setOpenSearch(false);
-                            handleSearch();
-                          }}
-                          className="flex items-center"
-                        >
-                          <MapPin className="mr-2 h-4 w-4 text-primary" />
-                          <span>{location.name}, {location.state} {location.zip}</span>
-                          {selectedLocation?.id === location.id && (
-                            <Check className="ml-auto h-4 w-4 text-primary" />
-                          )}
-                        </CommandItem>
-                      ))}
-                    </CommandGroup>
-                  </Command>
-                </PopoverContent>
-              </Popover>
+              <div className="flex-grow rounded-md relative">
+                <Input
+                  type="text"
+                  placeholder="Search location..."
+                  className="w-full h-9 pl-8 pr-4 rounded-md text-gray-800 border-gray-300 focus:border-primary"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      handleSearch();
+                    }
+                  }}
+                />
+              </div>
             </div>
           )}
           

@@ -3,8 +3,6 @@ import { useLocation } from "wouter";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem } from "@/components/ui/command";
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Check, ChevronsUpDown, Search, Home, Building, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -21,52 +19,7 @@ const LOCATIONS = [
 
 export default function LandingPage() {
   const [searchTerm, setSearchTerm] = useState("");
-  const [open, setOpen] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState<typeof LOCATIONS[0] | null>(null);
   const [, setLocation] = useLocation();
-
-  // Filter locations based on search term - no minimum character restriction for zip codes or property IDs
-  const filteredLocations = LOCATIONS.filter(location => {
-    // Handle Property ID search (for "100" and "10000")
-    if (searchTerm === "100" || searchTerm === "10000") {
-      return location.id === 100; // Show special property for both IDs
-    }
-    
-    // Handle numeric property ID prefix
-    if (/^10+\d*$/.test(searchTerm)) {
-      // Only show property if it's a complete match
-      if (searchTerm === "10000") {
-        return location.id === 100;
-      }
-      return false; // Don't show any locations when typing property ID prefix (10...)
-    }
-    
-    // Always show all locations when typing zip codes (numbers)
-    if (/^\d+$/.test(searchTerm)) {
-      return location.zip.includes(searchTerm);
-    }
-    
-    // For text search, require at least 2 characters
-    if (searchTerm.length < 2 && !/^\d+$/.test(searchTerm)) return false;
-    
-    return location.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      location.state.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      location.zip.includes(searchTerm);
-  });
-
-  // Handle search term changes
-  useEffect(() => {
-    // Reset selection only if search is empty
-    if (searchTerm.length === 0) {
-      setSelectedLocation(null);
-    }
-    
-    // Only show popover when user clicks on input and has typed something
-    // No automatic opening while typing
-    if (searchTerm.length === 0) {
-      setOpen(false);
-    }
-  }, [searchTerm]);
 
   // Handle search submission
   const handleSearch = () => {
@@ -76,7 +29,7 @@ export default function LandingPage() {
       setLocation(`/property/100`);
       return;
     }
-    
+
     // Check if it matches other property ID patterns (10...)
     if (/^10\d{3,}$/.test(searchTerm) && searchTerm !== "10000") {
       // Extract property ID from input
@@ -84,15 +37,9 @@ export default function LandingPage() {
       setLocation(`/property/${propertyId}`);
       return;
     }
-    
-    if (selectedLocation) {
-      // Navigate to properties page with the selected location as a query parameter
-      setLocation(`/properties?location=${selectedLocation.name},${selectedLocation.state}`);
-    } else if (searchTerm.length >= 3 && filteredLocations.length > 0) {
-      // If no location is selected but there are filtered results, use the first one
-      setLocation(`/properties?location=${filteredLocations[0].name},${filteredLocations[0].state}`);
-    } else if (searchTerm.length >= 3) {
-      // If no results, just search with the term as is
+
+    // Navigate to properties page with the search term as a query parameter
+    if (searchTerm.length > 0) {
       setLocation(`/properties?search=${searchTerm}`);
     }
   };
@@ -113,66 +60,37 @@ export default function LandingPage() {
               
               {/* Search Box */}
               <div className="relative flex w-full max-w-xl mx-auto">
-                <Popover open={open} onOpenChange={setOpen}>
-                  <PopoverTrigger asChild>
-                    <div className="flex flex-grow rounded-md relative">
-                      <Input
-                        type="text"
-                        placeholder="Enter city, ZIP code or Property ID"
-                        className="w-full h-12 pl-10 pr-4 rounded-l-md text-gray-800 border-gray-300 focus:border-primary"
-                        value={searchTerm}
-                        onChange={(e) => setSearchTerm(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            handleSearch();
-                          }
-                        }}
-                      />
-                      <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
-                        <Search size={18} />
-                      </span>
-                      {searchTerm && (
-                        <Button 
-                          variant="ghost"
-                          size="sm"
-                          className="absolute right-1 top-1/2 h-6 w-6 p-0 transform -translate-y-1/2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            setSearchTerm("");
-                            setSelectedLocation(null);
-                          }}
-                        >
-                          &times;
-                        </Button>
-                      )}
-                    </div>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0" align="start">
-                    <Command>
-                      <CommandEmpty>No locations found.</CommandEmpty>
-                      <CommandGroup>
-                        {filteredLocations.map((location) => (
-                          <CommandItem
-                            key={location.id}
-                            onSelect={() => {
-                              setSelectedLocation(location);
-                              setSearchTerm(`${location.name}, ${location.state}`);
-                              setOpen(false);
-                            }}
-                            className="flex items-center"
-                          >
-                            <MapPin className="mr-2 h-4 w-4 text-primary" />
-                            <span>{location.name}, {location.state} {location.zip}</span>
-                            {selectedLocation?.id === location.id && (
-                              <Check className="ml-auto h-4 w-4 text-primary" />
-                            )}
-                          </CommandItem>
-                        ))}
-                      </CommandGroup>
-                    </Command>
-                  </PopoverContent>
-                </Popover>
-                <Button 
+                <div className="flex flex-grow rounded-md relative">
+                  <Input
+                    type="text"
+                    placeholder="Enter city, ZIP code or Property ID"
+                    className="w-full h-12 pl-10 pr-4 rounded-l-md text-gray-800 border-gray-300 focus:border-primary"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        handleSearch();
+                      }
+                    }}
+                  />
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400">
+                    <Search size={18} />
+                  </span>
+                  {searchTerm && (
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      className="absolute right-1 top-1/2 h-6 w-6 p-0 transform -translate-y-1/2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSearchTerm("");
+                      }}
+                    >
+                      &times;
+                    </Button>
+                  )}
+                </div>
+                <Button
                   className="h-12 px-6 rounded-r-md bg-primary hover:bg-primary-600"
                   onClick={handleSearch}
                 >
