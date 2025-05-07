@@ -13,7 +13,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
   // Get all properties
   app.get("/api/properties", async (req, res) => {
     try {
-      const properties = await storage.getAllProperties();
+      const zipCode = req.query.zipCode as string | undefined;
+      const properties = await storage.getAllProperties(zipCode);
       return res.json(properties);
     } catch (error) {
       console.error("Error fetching properties:", error);

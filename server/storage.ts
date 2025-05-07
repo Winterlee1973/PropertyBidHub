@@ -57,8 +57,21 @@ export class DatabaseStorage implements IStorage {
     return result[0];
   }
 
-  async getAllProperties() {
+  async getAllProperties(zipCode?: string) {
+    let whereClause;
+    if (zipCode) {
+      if (zipCode.includes('*')) {
+        // Handle wildcard search
+        const likePattern = zipCode.replace(/\*/g, '%');
+        whereClause = sql`${properties.zipCode} LIKE ${likePattern}`;
+      } else {
+        // Handle exact match
+        whereClause = eq(properties.zipCode, zipCode);
+      }
+    }
+
     const allProperties = await db.query.properties.findMany({
+      where: whereClause,
       orderBy: desc(properties.createdAt),
     });
 

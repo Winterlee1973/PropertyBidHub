@@ -39,8 +39,20 @@ export default function HomePage() {
     }
   }, [location]);
 
+  // Determine if the search term is a potential zip code (5 digits or 5 digits with wildcard)
+  // Determine if the search term is a potential zip code (starts with 5 digits)
+  const isZipCodeSearch = /^\d{5}.*$/.test(searchTerm);
+
   const { data: properties, isLoading, error } = useQuery<(Property & { topBid: number | null })[]>({
-    queryKey: ["/api/properties"],
+    queryKey: ["/api/properties", searchTerm], // Include searchTerm in queryKey for refetching
+    queryFn: async () => {
+      const url = `/api/properties${searchTerm ? `?zipCode=${searchTerm}` : ''}`;
+      const response = await fetch(url);
+      if (!response.ok) {
+        throw new Error("Failed to fetch properties");
+      }
+      return response.json();
+    },
   });
 
   if (isLoading) {
@@ -61,58 +73,8 @@ export default function HomePage() {
     );
   }
 
-  // Filter properties based on search term
-  const filteredProperties = properties?.filter(property => {
-    const lowerSearchTerm = searchTerm.toLowerCase();
-    const matchesSearchTerm =
-      property.title.toLowerCase().includes(lowerSearchTerm) ||
-      property.address.toLowerCase().includes(lowerSearchTerm) ||
-      property.city.toLowerCase().includes(lowerSearchTerm) ||
-      property.state.toLowerCase().includes(lowerSearchTerm);
-
-    // Include the specific mock property if search term is "Locust Valley, NY" or "11560"
-    const isSpecificLocustValleySearch =
-      (lowerSearchTerm === "locust valley, ny" || lowerSearchTerm === "11560") &&
-      property.address === "687 Duck Pond Road" &&
-      property.city === "Locust Valley" &&
-      property.state === "NY";
-
-    return matchesSearchTerm || isSpecificLocustValleySearch;
-  }) || [];
-
-  // Add the specific mock property if the search term is "Locust Valley, NY" or "11560"
-  const lowerSearchTerm = searchTerm.toLowerCase();
-  const shouldAddMockProperty =
-    (lowerSearchTerm === "locust valley, ny" || lowerSearchTerm === "11560") &&
-    !filteredProperties.some(p => p.address === "687 Duck Pond Road" && p.city === "Locust Valley" && p.state === "NY");
-
-  if (shouldAddMockProperty) {
-    const mockProperty = {
-      id: 999, // Use a unique ID not likely to conflict
-      title: "Luxury Estate",
-      address: "687 Duck Pond Road",
-      city: "Locust Valley",
-      state: "NY",
-      zipCode: "11560",
-      description: "A stunning luxury estate.",
-      askingPrice: "0.00", // Placeholder
-      beds: 0, // Placeholder
-      baths: "0", // Placeholder
-      squareFeet: 0, // Placeholder
-      garageSpaces: 0, // Placeholder
-      featuredImage: "/attached_assets/Screenshot_20250505-172952.png", // Provided image
-      images: ["/attached_assets/Screenshot_20250505-172952.png"], // Provided image
-      features: [], // Placeholder
-      isFeatured: false, // Placeholder
-      isNewListing: false, // Placeholder
-      isHotProperty: false, // Placeholder
-      viewCount: 0, // Placeholder
-      endDate: new Date(), // Placeholder
-      createdAt: new Date(), // Placeholder
-      topBid: null, // Placeholder
-    };
-    filteredProperties.push(mockProperty);
-  }
+  // The backend now handles all filtering based on the zipCode parameter
+  const filteredProperties = properties || [];
 
   // Sort properties
   const sortedProperties = [...filteredProperties].sort((a, b) => {
